@@ -1,0 +1,182 @@
+/* Presentation only: colour, type and surface treatment.
+   No theme changes layout, navigation, workflow or exercise logic. */
+
+:root {
+  --radius: 12px;
+  --radius-sm: 9px;
+  --font-num: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+}
+
+/* ---------------------------------------------- 1. Analog Instrument Panel */
+[data-theme="analog"] {
+  --bg: #121315;
+  --surface: #191b1d;
+  --surface-alt: #1f2225;
+  --surface-open: #1c1f22;
+  --line: #26292d;
+  --line-strong: #343a40;
+  --text: #ecedee;
+  --muted: #9aa0a6;
+  --faint: #6b7178;
+  --accent: #5b8fb0;
+  --accent-ink: #0f161b;
+  --accent-line: #2f4d61;
+  --accent-soft: #2f4d61;
+  --accent-wash: rgba(91, 143, 176, .14);
+  --good: #6fae72;
+  --good-ink: #12180f;
+  --good-line: #38583a;
+  --warn: #d8a44f;
+  --danger: #d97c6a;
+  --danger-line: #6d3a32;
+  --bar-bg: rgba(18, 19, 21, .88);
+  --pill-bg: #1f2225;
+  --pill-shadow: 0 6px 20px rgba(0, 0, 0, .45);
+  --card-shadow: none;
+  --scrim: rgba(0, 0, 0, .55);
+  --toast-bg: #24282c;
+  --toast-ink: #ecedee;
+  --font-ui: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Inter, system-ui, sans-serif;
+  --h1-font: 600 26px/1.1 var(--font-ui);
+  --h1-track: -.02em;
+  --h1-case: none;
+  --card-title-font: 600 17px/1.25 var(--font-ui);
+  --card-title-track: -.01em;
+  --label-font: 600 10.5px/1.2 var(--font-num);
+  color-scheme: dark;
+}
+
+/* ---------------------------------------------- 2. Alpine Field Log */
+[data-theme="alpine"] {
+  --bg: #f3efe6;
+  --surface: #fbf8f1;
+  --surface-alt: #efeadd;
+  --surface-open: #fdfbf6;
+  --line: #ddd5c4;
+  --line-strong: #c6bca6;
+  --text: #22201b;
+  --muted: #6d6555;
+  --faint: #938a77;
+  --accent: #2f5d3f;
+  --accent-ink: #f7f4ec;
+  --accent-line: #a9bfae;
+  --accent-soft: #9cb6a4;
+  --accent-wash: rgba(47, 93, 63, .1);
+  --good: #3f7a4c;
+  --good-ink: #f7f4ec;
+  --good-line: #a9bfae;
+  --warn: #9a6b1f;
+  --danger: #9c3b2c;
+  --danger-line: #d3b1a9;
+  --bar-bg: rgba(243, 239, 230, .92);
+  --pill-bg: #fbf8f1;
+  --pill-shadow: 0 4px 14px rgba(70, 60, 40, .18);
+  --card-shadow: 0 1px 0 rgba(120, 108, 84, .12);
+  --scrim: rgba(40, 34, 24, .34);
+  --toast-bg: #2b2921;
+  --toast-ink: #f6f2e8;
+  --font-ui: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --h1-font: 600 25px/1.15 var(--font-ui);
+  --h1-track: 0;
+  --h1-case: none;
+  --card-title-font: 600 17px/1.28 var(--font-ui);
+  --card-title-track: 0;
+  --label-font: 600 10.5px/1.2 var(--font-num);
+  color-scheme: light;
+}
+[data-theme="alpine"] .card { border-radius: 6px; }
+[data-theme="alpine"] .ex { border-radius: 6px; }
+[data-theme="alpine"] .field, [data-theme="alpine"] .tick, [data-theme="alpine"] .btn { border-radius: 5px; }
+
+/* ---------------------------------------------- 3. Midnight Ledger */
+[data-theme="midnight"] {
+  --bg: #0a0d13;
+  --surface: #11151e;
+  --surface-alt: #161c28;
+  --surface-open: #131925;
+  --line: #1d2531;
+  --line-strong: #2a3444;
+  --text: #e4eaf2;
+  --muted: #8794a8;
+  --faint: #5d6a7d;
+  --accent: #66b6cc;
+  --accent-ink: #08121a;
+  --accent-line: #2f5a68;
+  --accent-soft: #2f5a68;
+  --accent-wash: rgba(102, 182, 204, .12);
+  --good: #5eb39a;
+  --good-ink: #07130f;
+  --good-line: #2c5a4e;
+  --warn: #cfa55e;
+  --danger: #cf7b78;
+  --danger-line: #5e3436;
+  --bar-bg: rgba(10, 13, 19, .9);
+  --pill-bg: #161c28;
+  --pill-shadow: 0 6px 22px rgba(0, 0, 0, .6);
+  --card-shadow: none;
+  --scrim: rgba(3, 6, 10, .62);
+  --toast-bg: #1b222e;
+  --toast-ink: #e4eaf2;
+  --font-ui: "SF Pro Text", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --h1-font: 500 24px/1.12 var(--font-ui);
+  --h1-track: .01em;
+  --h1-case: none;
+  --card-title-font: 500 16.5px/1.25 var(--font-ui);
+  --card-title-track: .005em;
+  --label-font: 500 10.5px/1.2 var(--font-num);
+  color-scheme: dark;
+}
+[data-theme="midnight"] .card, [data-theme="midnight"] .ex { border-radius: 10px; }
+[data-theme="midnight"] .appbar h1 { font-weight: 500; }
+
+/* ---------------------------------------------- 4. Chalk & Iron */
+[data-theme="chalk"] {
+  --bg: #0c0c0d;
+  --surface: #141416;
+  --surface-alt: #1c1c1f;
+  --surface-open: #171719;
+  --line: #2f2f34;
+  --line-strong: #4d4d55;
+  --text: #f5f4f2;
+  --muted: #a9a8a4;
+  --faint: #78777c;
+  --accent: #d8412f;
+  --accent-ink: #faf8f6;
+  --accent-line: #7a2a20;
+  --accent-soft: #7a2a20;
+  --accent-wash: rgba(216, 65, 47, .14);
+  /* No green anywhere: a completed set goes solid chalk. */
+  --good: #e9e7e3;
+  --good-ink: #0c0c0d;
+  --good-line: #6a6970;
+  --warn: #d8a44f;
+  --danger: #ef7a66;
+  --danger-line: #7a2a20;
+  --bar-bg: rgba(12, 12, 13, .92);
+  --pill-bg: #1c1c1f;
+  --pill-shadow: 0 6px 20px rgba(0, 0, 0, .6);
+  --card-shadow: none;
+  --scrim: rgba(0, 0, 0, .7);
+  --toast-bg: #1f1f23;
+  --toast-ink: #f5f4f2;
+  --font-ui: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Inter, system-ui, sans-serif;
+  --h1-font: 700 21px/1.1 var(--font-ui);
+  --h1-track: .06em;
+  --h1-case: uppercase;
+  --card-title-font: 700 17px/1.2 var(--font-ui);
+  --card-title-track: -.01em;
+  --label-font: 700 10.5px/1.2 var(--font-num);
+  color-scheme: dark;
+}
+/* Square corners and full-strength rules: the loudest, most legible of the four. */
+[data-theme="chalk"] .card,
+[data-theme="chalk"] .ex,
+[data-theme="chalk"] .sheet { border-radius: 2px; }
+[data-theme="chalk"] .field,
+[data-theme="chalk"] .tick,
+[data-theme="chalk"] .btn,
+[data-theme="chalk"] .input,
+[data-theme="chalk"] .seg { border-radius: 2px; }
+[data-theme="chalk"] .badge { border-radius: 1px; letter-spacing: .09em; }
+[data-theme="chalk"] .section-title { letter-spacing: .14em; }
+[data-theme="chalk"] .day { border-right-color: var(--line-strong); }
