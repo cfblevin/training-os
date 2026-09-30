@@ -338,3 +338,38 @@ test('switching mode changes the plan without touching physique history', () => 
   s.settings.mode = 'physique';
   assert.equal(A.sessionFor(s, MON).id, session.id);
 });
+
+test('a session opens at what was actually lifted, not a stale baseline', () => {
+  const s = fresh();
+  const key = WED;
+  const first = A.startSession(s, key);
+  const anchor = first.exercises[0];
+  const baseline = A.loadFor(s, anchor.exerciseId);
+
+  // Work above baseline without ever accepting a suggestion — the common case.
+  for (let i = 0; i < anchor.sets.length; i++) {
+    A.completeSet(first, anchor.uid, i, { reps: anchor.repMin, load: baseline + 20 });
+  }
+  A.finishSession(s, first.id);
+  assert.equal(A.loadFor(s, anchor.exerciseId), baseline, 'the baseline itself has not moved');
+
+  const nextKey = A_addDays(key, 7);
+  const next = A.startSession(s, nextKey);
+  const again = next.exercises.find((e) => e.exerciseId === anchor.exerciseId);
+  assert.equal(again.load, baseline + 20, 'the session opens at the working load');
+  assert.ok(again.sets.every((x) => x.load === baseline + 20), 'every set is prefilled with it');
+  assert.equal(A.workingLoad(s, anchor.exerciseId, nextKey), baseline + 20);
+});
+
+test('a deliberate deload is respected rather than overridden', () => {
+  const s = fresh();
+  const key = WED;
+  const first = A.startSession(s, key);
+  const e = first.exercises[0];
+  const baseline = A.loadFor(s, e.exerciseId);
+  for (let i = 0; i < e.sets.length; i++) A.completeSet(first, e.uid, i, { reps: e.repMin, load: baseline - 20 });
+  A.finishSession(s, first.id);
+  const next = A.startSession(s, A_addDays(key, 7));
+  const again = next.exercises.find((x) => x.exerciseId === e.exerciseId);
+  assert.equal(again.load, baseline, 'a lighter session does not drag the baseline down');
+});

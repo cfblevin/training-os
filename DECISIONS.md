@@ -3,7 +3,7 @@
 Living record of what is settled, what is deliberately out, and what is still open.
 Update this file whenever a decision changes, with the date and the reason.
 
-_Last updated: 2026-09-29 (v1.4.0 — sessions can be marked as trained without logging)_
+_Last updated: 2026-09-29 (v1.5.0 — UI audit applied: contrast, touch targets, badge density, working load)_
 
 The reasoning behind the programming lives in [PHILOSOPHY.md](PHILOSOPHY.md). This file records *what* was decided; that file records *why*.
 
@@ -140,4 +140,10 @@ treated as body composition plus shoulder-to-waist ratio, and the ratio is addre
 | 2026-09-29 | Fourth colorway **Chalk & Iron** added: near-black, chalk type, square corners, uppercase screen titles, one signal red, no green anywhere. | Athlete choice, for maximum legibility at arm's length under bad gym lighting. Completion ticks fill chalk instead of green, which required a new `--good-ink` token so the check never prints on its own colour. |
 | 2026-09-29 | Set-row numerals enlarged 17px → 20px (17px below 340px) and the tick to 19px. | They are the thing actually read mid-set. Verified nothing clips and every tap target stays 44px, including five-column unilateral rows at 320px. |
 | 2026-09-29 | Anchor lifts marked with a left rule instead of an "Anchor" badge. | Priority-tagged anchors were carrying two badges and wrapping onto a second line. The rule reads instantly and removes a label from every row. |
+| 2026-09-29 | Audit pass: `--faint` raised to clear 4.5:1 on every surface in all four colorways (was 2.98–4.40). | Measured, not eyeballed. It carried the last-performance line, chart axes, weekday labels and inactive tabs — text read at arm's length in bad light. A test now fails if any token drops below AA. |
+| 2026-09-29 | Last-performance line moved from `--faint` to `--muted`; touch targets standardised at 44px (`.btn-sm` 36→44, expanded-exercise links 19→44). | Visual weight was inverted against importance, and two touch-target standards existed in one app. |
+| 2026-09-29 | Per-row "Priority" badge removed from the workout and the day preview; priorities now appear once as the deduped chip row. | It was showing on five of six rows on leg days, which made it decoration rather than signal. |
+| 2026-09-29 | "Foundation movement" renamed to "Anchor lift" in History and the family sheet. | Leftover from the rotation model; the rest of the app had already moved to anchor/rotating. |
+| 2026-09-29 | Sessions open at the **working load** — max(baseline, last performed) — and the load picker centres there. | Working above baseline without accepting a suggestion is normal, and the app was proposing a stale number for both the prefill and the one-tap log. A deliberate deload is not dragged back up. |
+| 2026-09-29 | Set-volume column dropped from the exercise progression sheet. | Volume falling while load rose read as a contradiction, and its explanation was in the least legible colour on the page. |
 | 2026-09-29 | **Mark as trained, no log** added for any date. | A session genuinely happened but was not recorded set by set. The alternatives were both dishonest: reconstruct loads from memory, or let the day read as skipped. This records the fact and nothing else — zero sets, zero volume, zero progression signal — and the day still shows its scheduled plan. Reversible, and a marked day can still be logged properly later without creating a duplicate record. |

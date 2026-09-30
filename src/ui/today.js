@@ -166,12 +166,12 @@ export function openPreview(key) {
       plan.rest
         ? el('p', { class: 'empty', text: 'No workout scheduled.' })
         : el('div', null,
-          el('div', { class: 'list' }, plan.exercises.map((e) => el('div', { class: 'list-row' },
+          priorityChips(plan),
+          el('div', { class: 'list', style: 'margin-top:10px' }, plan.exercises.map((e) => el('div', { class: 'list-row' },
             el('div', { class: 'list-row-main' },
               el('div', { class: 'list-name truncate', text: e.name }),
               e.added ? el('div', { class: 'list-sub', text: 'Added' }) : null),
-            e.priority && PRIORITY_LABELS[e.priority]
-              ? el('span', { class: 'badge', text: 'Priority' }) : null))),
+            e.isAnchor ? el('span', { class: 'badge badge-quiet', text: 'Anchor' }) : null))),
           plan.why ? el('p', { class: 'why', text: plan.why }) : null,
           el('div', { class: 'btn-row', style: 'margin-top:16px' },
             isToday || session

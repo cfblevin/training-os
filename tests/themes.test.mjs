@@ -65,6 +65,39 @@ test('the Settings list offers exactly the colorways that exist', () => {
   assert.deepEqual(listed.sort(), [...themeBlocks().keys()].sort());
 });
 
+function hexLuminance(hex) {
+  const h = hex.replace('#', '');
+  const parts = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+  const lin = parts.map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
+}
+
+function contrast(a, b) {
+  const x = hexLuminance(a);
+  const y = hexLuminance(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+
+test('every text token clears 4.5:1 on every surface it sits on', () => {
+  // The app is read at arm's length in bad gym lighting. Small text gets AA or better.
+  for (const [name, body] of themeBlocks()) {
+    const token = (t) => {
+      const m = new RegExp(`--${t}:\\s*(#[0-9a-fA-F]{6})`).exec(body);
+      assert.ok(m, `${name} is missing a hex value for --${t}`);
+      return m[1];
+    };
+    const surfaces = ['bg', 'surface', 'surface-alt'].map(token);
+    for (const text of ['text', 'muted', 'faint']) {
+      const fg = token(text);
+      for (const bg of surfaces) {
+        const ratio = contrast(fg, bg);
+        assert.ok(ratio >= 4.5,
+          `${name}: --${text} ${fg} on ${bg} is ${ratio.toFixed(2)}:1, below 4.5`);
+      }
+    }
+  }
+});
+
 test('no colorway alters layout, spacing or navigation', () => {
   const overrides = themes.match(/\[data-theme="[a-z]+"\]\s+[^{]+\{[^}]*\}/g) || [];
   const banned = /(display|position|width|height|margin|padding|gap|flex|grid|top|left|right|bottom|z-index|order)\s*:/;

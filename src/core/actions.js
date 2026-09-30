@@ -142,6 +142,28 @@ export function isUnlogged(session) {
   return !!(session && session.unlogged);
 }
 
+/** The load a session should open at: the baseline, or what was actually lifted
+ *  last time if that is higher. Working above baseline without accepting a
+ *  suggestion is normal, and the app should not keep proposing the old number. */
+export function workingLoad(state, exerciseId, beforeKey) {
+  const base = Number(loadFor(state, exerciseId)) || 0;
+  const last = lastPerformance(state, exerciseId, beforeKey);
+  return last && Number(last.topLoad) > base ? Number(last.topLoad) : base;
+}
+
+function openingEntries(state, plan, key) {
+  return plan.exercises.map((e) => {
+    const load = workingLoad(state, e.exerciseId, key);
+    return {
+      ...deepClone(e),
+      load,
+      sets: Array.from({ length: e.plannedSets }, () => ({
+        load, reps: null, repsL: null, repsR: null, done: false, at: null,
+      })),
+    };
+  });
+}
+
 export function startSession(state, key) {
   const existing = sessionFor(state, key);
   // A day marked as trained can still be logged properly afterwards.
@@ -150,12 +172,7 @@ export function startSession(state, key) {
     existing.unlogged = false;
     existing.status = 'active';
     existing.completedAt = null;
-    existing.exercises = plan.exercises.map((e) => ({
-      ...deepClone(e),
-      sets: Array.from({ length: e.plannedSets }, () => ({
-        load: e.load, reps: null, repsL: null, repsR: null, done: false, at: null,
-      })),
-    }));
+    existing.exercises = openingEntries(state, plan, key);
     return existing;
   }
   if (existing) return existing;
@@ -171,12 +188,7 @@ export function startSession(state, key) {
     startedAt: new Date().toISOString(),
     completedAt: null,
     notes: '',
-    exercises: plan.exercises.map((e) => ({
-      ...deepClone(e),
-      sets: Array.from({ length: e.plannedSets }, () => ({
-        load: e.load, reps: null, repsL: null, repsR: null, done: false, at: null,
-      })),
-    })),
+    exercises: openingEntries(state, plan, key),
   };
   state.sessions.push(session);
   return session;

@@ -109,7 +109,7 @@ button { background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-h
 .btn-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .btn-quiet { background: none; border-color: var(--line); color: var(--muted); font-weight: 500; }
 .btn-danger { color: var(--danger); border-color: var(--danger-line); }
-.btn-sm { min-height: 36px; font-size: 13px; padding: 0 12px; width: auto; }
+.btn-sm { min-height: 44px; font-size: 13px; padding: 0 14px; width: auto; }
 .btn:disabled { opacity: .45; }
 .btn-row { display: flex; gap: 8px; }
 .btn-row > * { flex: 1 1 0; min-width: 0; }
@@ -247,8 +247,13 @@ button { background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-h
   border-radius: var(--radius-sm); background: var(--surface-alt);
 }
 .suggest-text { font-size: 13.5px; }
-.ex-links { display: flex; gap: 14px; margin-top: 10px; }
-.link { font-size: 12.5px; color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-line); }
+.ex-links { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+.link {
+  font-size: 12.5px; color: var(--accent); text-decoration: none;
+  min-height: 44px; display: inline-flex; align-items: center; padding: 0 8px;
+  border-radius: var(--radius-sm);
+}
+.link:active { background: var(--surface-alt); }
 .next-cue {
   display: flex; align-items: center; justify-content: space-between;
   padding: 10px 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted);
@@ -423,7 +428,7 @@ textarea.input { min-height: 88px; resize: vertical; }
   --line-strong: #343a40;
   --text: #ecedee;
   --muted: #9aa0a6;
-  --faint: #6b7178;
+  --faint: #848a91;
   --accent: #5b8fb0;
   --accent-ink: #0f161b;
   --accent-line: #2f4d61;
@@ -462,7 +467,7 @@ textarea.input { min-height: 88px; resize: vertical; }
   --line-strong: #c6bca6;
   --text: #22201b;
   --muted: #6d6555;
-  --faint: #938a77;
+  --faint: #716855;
   --accent: #2f5d3f;
   --accent-ink: #f7f4ec;
   --accent-line: #a9bfae;
@@ -504,7 +509,7 @@ textarea.input { min-height: 88px; resize: vertical; }
   --line-strong: #2a3444;
   --text: #e4eaf2;
   --muted: #8794a8;
-  --faint: #5d6a7d;
+  --faint: #788598;
   --accent: #66b6cc;
   --accent-ink: #08121a;
   --accent-line: #2f5a68;
@@ -545,7 +550,7 @@ textarea.input { min-height: 88px; resize: vertical; }
   --line-strong: #4d4d55;
   --text: #f5f4f2;
   --muted: #a9a8a4;
-  --faint: #78777c;
+  --faint: #858489;
   --accent: #d8412f;
   --accent-ink: #faf8f6;
   --accent-line: #7a2a20;
@@ -2419,6 +2424,28 @@ function isUnlogged(session) {
   return !!(session && session.unlogged);
 }
 
+/** The load a session should open at: the baseline, or what was actually lifted
+ *  last time if that is higher. Working above baseline without accepting a
+ *  suggestion is normal, and the app should not keep proposing the old number. */
+function workingLoad(state, exerciseId, beforeKey) {
+  const base = Number(loadFor(state, exerciseId)) || 0;
+  const last = lastPerformance(state, exerciseId, beforeKey);
+  return last && Number(last.topLoad) > base ? Number(last.topLoad) : base;
+}
+
+function openingEntries(state, plan, key) {
+  return plan.exercises.map((e) => {
+    const load = workingLoad(state, e.exerciseId, key);
+    return {
+      ...deepClone(e),
+      load,
+      sets: Array.from({ length: e.plannedSets }, () => ({
+        load, reps: null, repsL: null, repsR: null, done: false, at: null,
+      })),
+    };
+  });
+}
+
 function startSession(state, key) {
   const existing = sessionFor(state, key);
   // A day marked as trained can still be logged properly afterwards.
@@ -2427,12 +2454,7 @@ function startSession(state, key) {
     existing.unlogged = false;
     existing.status = 'active';
     existing.completedAt = null;
-    existing.exercises = plan.exercises.map((e) => ({
-      ...deepClone(e),
-      sets: Array.from({ length: e.plannedSets }, () => ({
-        load: e.load, reps: null, repsL: null, repsR: null, done: false, at: null,
-      })),
-    }));
+    existing.exercises = openingEntries(state, plan, key);
     return existing;
   }
   if (existing) return existing;
@@ -2448,12 +2470,7 @@ function startSession(state, key) {
     startedAt: new Date().toISOString(),
     completedAt: null,
     notes: '',
-    exercises: plan.exercises.map((e) => ({
-      ...deepClone(e),
-      sets: Array.from({ length: e.plannedSets }, () => ({
-        load: e.load, reps: null, repsL: null, repsR: null, done: false, at: null,
-      })),
-    })),
+    exercises: openingEntries(state, plan, key),
   };
   state.sessions.push(session);
   return session;
@@ -3160,7 +3177,7 @@ function weeklyConditioning(state, weekStartKey) {
 }
 
 
-return { LIBRARY, acceptSuggestion, addCandidates, addExercise, addPastSet, addRotationOption, anchorSlots, blockReview, blockState, completeSet, computeSuggestions, conditioningFor, createCustomExercise, deleteConditioning, deleteSession, duplicateExercise, editEntry, editPastSet, ensureOverride, entryComplete, entryOf, exerciseById, finishSession, incrementFor, isRest, isUnlogged, keepCurrentLoad, lastPerformance, libMapFor, loadFor, logConditioning, markDayTrained, mode, newId, nextTrainingDay, patchSet, planFor, programOf, reassignPastExercise, removeExercise, removePastSet, removeRotationOption, resetDay, rotatingSlots, searchLibrary, sessionComplete, sessionFor, sessionProgress, setAnchorExercise, setBaseline, setBlockLength, setSessionNotes, startNewBlock, startSession, swapCandidates, swapExercise, uncompleteSet, unmarkDayTrained, updateConditioning, weeklyConditioning };
+return { LIBRARY, acceptSuggestion, addCandidates, addExercise, addPastSet, addRotationOption, anchorSlots, blockReview, blockState, completeSet, computeSuggestions, conditioningFor, createCustomExercise, deleteConditioning, deleteSession, duplicateExercise, editEntry, editPastSet, ensureOverride, entryComplete, entryOf, exerciseById, finishSession, incrementFor, isRest, isUnlogged, keepCurrentLoad, lastPerformance, libMapFor, loadFor, logConditioning, markDayTrained, mode, newId, nextTrainingDay, patchSet, planFor, programOf, reassignPastExercise, removeExercise, removePastSet, removeRotationOption, resetDay, rotatingSlots, searchLibrary, sessionComplete, sessionFor, sessionProgress, setAnchorExercise, setBaseline, setBlockLength, setSessionNotes, startNewBlock, startSession, swapCandidates, swapExercise, uncompleteSet, unmarkDayTrained, updateConditioning, weeklyConditioning, workingLoad };
 })();
 __M['ui/pickers.js'] = (function () {
 // Load / reps pickers, swap and add sheets, and the per-exercise three-dot menu.
@@ -3186,7 +3203,7 @@ function applyRemainingRow(entry, index, state) {
 }
 
 // ------------------------------------------------------------------- load
-function openLoadPicker({ entry, index, value, recommended, onSave }) {
+function openLoadPicker({ entry, index, value, recommended, lastLoad = null, onSave }) {
   const inc = entry.increment || 5;
   const state = { value: Number(value ?? recommended ?? 0), applyRemaining: false };
   const conv = LOAD_CONVENTION_LABELS[entry.loadConvention] || '';
@@ -3202,6 +3219,12 @@ function openLoadPicker({ entry, index, value, recommended, onSave }) {
           onclick: () => { state.value = v; rerender(); },
         }, k === 0 ? `${fmtLoad(v, entry.loadConvention)} ·` : fmtLoad(v, entry.loadConvention));
       });
+      const lastChip = lastLoad != null && Number(lastLoad) !== Number(recommended)
+        ? el('button', {
+          class: 'chip-btn', 'aria-pressed': String(Number(lastLoad) === state.value),
+          onclick: () => { state.value = Number(lastLoad); rerender(); },
+        }, `Last ${fmtLoad(lastLoad, entry.loadConvention)}`)
+        : null;
       return el('div', null,
         el('div', { class: 'picker-value' },
           el('div', { class: 'picker-num', text: fmtLoad(state.value, entry.loadConvention) }),
@@ -3215,7 +3238,7 @@ function openLoadPicker({ entry, index, value, recommended, onSave }) {
             oninput: (e) => { state.value = Number(e.target.value || 0); },
           }),
           el('button', { class: 'btn', 'aria-label': `Plus ${inc}`, onclick: () => { state.value += inc; rerender(); } }, '+')),
-        el('div', { class: 'chips', style: 'margin-top:12px' }, chips),
+        el('div', { class: 'chips', style: 'margin-top:12px' }, chips, lastChip),
         el('p', { class: 'tiny faint', style: 'margin:8px 0 0' },
           `Recommended ${fmtLoad(recommended, entry.loadConvention)} · steps of ${inc}`),
         applyRemainingRow(entry, index, state),
@@ -4108,12 +4131,12 @@ function openPreview(key) {
       plan.rest
         ? el('p', { class: 'empty', text: 'No workout scheduled.' })
         : el('div', null,
-          el('div', { class: 'list' }, plan.exercises.map((e) => el('div', { class: 'list-row' },
+          priorityChips(plan),
+          el('div', { class: 'list', style: 'margin-top:10px' }, plan.exercises.map((e) => el('div', { class: 'list-row' },
             el('div', { class: 'list-row-main' },
               el('div', { class: 'list-name truncate', text: e.name }),
               e.added ? el('div', { class: 'list-sub', text: 'Added' }) : null),
-            e.priority && PRIORITY_LABELS[e.priority]
-              ? el('span', { class: 'badge', text: 'Priority' }) : null))),
+            e.isAnchor ? el('span', { class: 'badge badge-quiet', text: 'Anchor' }) : null))),
           plan.why ? el('p', { class: 'why', text: plan.why }) : null,
           el('div', { class: 'btn-row', style: 'margin-top:16px' },
             isToday || session
@@ -4411,7 +4434,7 @@ function openExerciseProgress(exerciseId) {
           }, lab))),
         lineChart(pts, picker, { label: `${name} ${metric.key}` }),
         el('div', { class: 'row', style: 'gap:8px;margin:6px 0 12px;flex-wrap:wrap' },
-          el('span', { class: 'badge badge-quiet', text: last.isFoundation ? 'Foundation movement' : 'Current variation' }),
+          el('span', { class: 'badge badge-quiet', text: last.isFoundation ? 'Anchor lift' : 'Rotating movement' }),
           el('span', {
             class: `badge ${trend === 'progressing' ? 'badge-good' : 'badge-quiet'}`,
             text: `Trend: ${trend}`,
@@ -4431,7 +4454,7 @@ function openExerciseProgress(exerciseId) {
             },
               el('div', { class: 'list-row-main' },
                 el('div', { class: 'list-name truncate', text: r.name }),
-                el('div', { class: 'list-sub', text: r.isFoundation ? 'Foundation' : 'Variation' })),
+                el('div', { class: 'list-sub', text: r.isFoundation ? 'Anchor' : 'Rotating' })),
               el('span', { class: 'caret', text: '›' })))))
           : null);
     },
@@ -5037,7 +5060,7 @@ function addPhoto(file) {
 return { renderProfile };
 })();
 __M['version.js'] = (function () {
-const APP_VERSION = '1.4.0';
+const APP_VERSION = '1.5.0';
 const BUILD = '2026-09-29';
 
 return { APP_VERSION, BUILD };
@@ -5683,7 +5706,6 @@ function renderExercise(state, session, e) {
     },
       el('div', { class: 'ex-name-row' },
         el('span', { class: 'ex-name', text: e.name }),
-        e.priority && PRIORITY_LABELS[e.priority] ? el('span', { class: 'badge', text: 'Priority' }) : null,
         e.added ? el('span', { class: 'badge badge-quiet', text: 'Added' }) : null,
         e.locked ? el('span', { class: 'badge badge-quiet', text: 'Performed' }) : null),
       meta),
@@ -5714,7 +5736,8 @@ function nextCue(session, e) {
 
 function renderExerciseBody(state, session, e) {
   const sug = (state.suggestions || {})[e.exerciseId];
-  const rows = e.sets.map((set, i) => renderSetRow(e, set, i));
+  const last = A.lastPerformance(state, e.exerciseId, session.dateKey);
+  const rows = e.sets.map((set, i) => renderSetRow(e, set, i, last));
 
   return el('div', { class: 'ex-body' },
     el('div', null, rows),
@@ -5742,13 +5765,17 @@ function renderExerciseBody(state, session, e) {
       }, `Rest ${e.restSec}s`) : null));
 }
 
-function renderSetRow(e, set, i) {
+function renderSetRow(e, set, i, last) {
   const unitShort = e.unit === 'yards' ? 'yd' : e.unit === 'seconds' ? 'sec' : 'reps';
   const loadBtn = el('button', {
     class: `field${set.load == null ? ' field-empty' : ''}`,
     'aria-label': `Load for set ${i + 1}`,
     onclick: () => openLoadPicker({
-      entry: e, index: i, value: set.load, recommended: e.load,
+      entry: e, index: i, value: set.load,
+      // Working above baseline without accepting a suggestion is normal; centre on
+      // whichever is higher so the quick steps are never stale.
+      recommended: Math.max(Number(e.load) || 0, (last && Number(last.topLoad)) || 0),
+      lastLoad: last ? last.topLoad : null,
       onSave: (v, applyRemaining) => mutate((s, session) => {
         A.patchSet(session, e.uid, i, { load: v }, { applyToRemaining: applyRemaining });
       }),
@@ -5820,15 +5847,15 @@ function openFamilySheet(state, e) {
         el('div', { class: 'list-row' },
           el('div', { class: 'list-row-main' },
             el('div', { class: 'list-name', text: foundation ? foundation.name : '—' }),
-            el('div', { class: 'list-sub', text: 'Foundation movement' })),
+            el('div', { class: 'list-sub', text: 'Anchor lift' })),
           e.isFoundation ? el('span', { class: 'badge badge-good', text: 'Today' }) : null),
         el('div', { class: 'list-row' },
           el('div', { class: 'list-row-main' },
             el('div', { class: 'list-name', text: e.name }),
-            el('div', { class: 'list-sub', text: e.isFoundation ? 'Foundation movement' : 'Planned variation' })),
+            el('div', { class: 'list-sub', text: e.isAnchor ? 'Anchor lift' : 'Rotating this week' })),
           !e.isFoundation ? el('span', { class: 'badge badge-good', text: 'Today' }) : null)),
       el('p', { class: 'explainer', style: 'margin-top:12px' },
-        'Roughly two weeks in three run the foundation movement so load progression stays comparable. The remaining weeks use a planned variation for the same muscles.'),
+        'The anchor lift stays fixed for the whole block so its load progression means something. The rotating slot serves the next movement in its pool each week, for variety rather than load.'),
       el('div', { style: 'margin-top:12px' },
         el('button', { class: 'btn btn-quiet', onclick: () => openExerciseProgress(e.exerciseId) }, 'Open progression'))),
   });

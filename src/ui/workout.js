@@ -110,7 +110,6 @@ function renderExercise(state, session, e) {
     },
       el('div', { class: 'ex-name-row' },
         el('span', { class: 'ex-name', text: e.name }),
-        e.priority && PRIORITY_LABELS[e.priority] ? el('span', { class: 'badge', text: 'Priority' }) : null,
         e.added ? el('span', { class: 'badge badge-quiet', text: 'Added' }) : null,
         e.locked ? el('span', { class: 'badge badge-quiet', text: 'Performed' }) : null),
       meta),
@@ -141,7 +140,8 @@ function nextCue(session, e) {
 
 function renderExerciseBody(state, session, e) {
   const sug = (state.suggestions || {})[e.exerciseId];
-  const rows = e.sets.map((set, i) => renderSetRow(e, set, i));
+  const last = A.lastPerformance(state, e.exerciseId, session.dateKey);
+  const rows = e.sets.map((set, i) => renderSetRow(e, set, i, last));
 
   return el('div', { class: 'ex-body' },
     el('div', null, rows),
@@ -169,13 +169,17 @@ function renderExerciseBody(state, session, e) {
       }, `Rest ${e.restSec}s`) : null));
 }
 
-function renderSetRow(e, set, i) {
+function renderSetRow(e, set, i, last) {
   const unitShort = e.unit === 'yards' ? 'yd' : e.unit === 'seconds' ? 'sec' : 'reps';
   const loadBtn = el('button', {
     class: `field${set.load == null ? ' field-empty' : ''}`,
     'aria-label': `Load for set ${i + 1}`,
     onclick: () => openLoadPicker({
-      entry: e, index: i, value: set.load, recommended: e.load,
+      entry: e, index: i, value: set.load,
+      // Working above baseline without accepting a suggestion is normal; centre on
+      // whichever is higher so the quick steps are never stale.
+      recommended: Math.max(Number(e.load) || 0, (last && Number(last.topLoad)) || 0),
+      lastLoad: last ? last.topLoad : null,
       onSave: (v, applyRemaining) => mutate((s, session) => {
         A.patchSet(session, e.uid, i, { load: v }, { applyToRemaining: applyRemaining });
       }),
@@ -247,15 +251,15 @@ function openFamilySheet(state, e) {
         el('div', { class: 'list-row' },
           el('div', { class: 'list-row-main' },
             el('div', { class: 'list-name', text: foundation ? foundation.name : '—' }),
-            el('div', { class: 'list-sub', text: 'Foundation movement' })),
+            el('div', { class: 'list-sub', text: 'Anchor lift' })),
           e.isFoundation ? el('span', { class: 'badge badge-good', text: 'Today' }) : null),
         el('div', { class: 'list-row' },
           el('div', { class: 'list-row-main' },
             el('div', { class: 'list-name', text: e.name }),
-            el('div', { class: 'list-sub', text: e.isFoundation ? 'Foundation movement' : 'Planned variation' })),
+            el('div', { class: 'list-sub', text: e.isAnchor ? 'Anchor lift' : 'Rotating this week' })),
           !e.isFoundation ? el('span', { class: 'badge badge-good', text: 'Today' }) : null)),
       el('p', { class: 'explainer', style: 'margin-top:12px' },
-        'Roughly two weeks in three run the foundation movement so load progression stays comparable. The remaining weeks use a planned variation for the same muscles.'),
+        'The anchor lift stays fixed for the whole block so its load progression means something. The rotating slot serves the next movement in its pool each week, for variety rather than load.'),
       el('div', { style: 'margin-top:12px' },
         el('button', { class: 'btn btn-quiet', onclick: () => openExerciseProgress(e.exerciseId) }, 'Open progression'))),
   });

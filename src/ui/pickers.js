@@ -22,7 +22,7 @@ function applyRemainingRow(entry, index, state) {
 }
 
 // ------------------------------------------------------------------- load
-export function openLoadPicker({ entry, index, value, recommended, onSave }) {
+export function openLoadPicker({ entry, index, value, recommended, lastLoad = null, onSave }) {
   const inc = entry.increment || 5;
   const state = { value: Number(value ?? recommended ?? 0), applyRemaining: false };
   const conv = LOAD_CONVENTION_LABELS[entry.loadConvention] || '';
@@ -38,6 +38,12 @@ export function openLoadPicker({ entry, index, value, recommended, onSave }) {
           onclick: () => { state.value = v; rerender(); },
         }, k === 0 ? `${fmtLoad(v, entry.loadConvention)} ·` : fmtLoad(v, entry.loadConvention));
       });
+      const lastChip = lastLoad != null && Number(lastLoad) !== Number(recommended)
+        ? el('button', {
+          class: 'chip-btn', 'aria-pressed': String(Number(lastLoad) === state.value),
+          onclick: () => { state.value = Number(lastLoad); rerender(); },
+        }, `Last ${fmtLoad(lastLoad, entry.loadConvention)}`)
+        : null;
       return el('div', null,
         el('div', { class: 'picker-value' },
           el('div', { class: 'picker-num', text: fmtLoad(state.value, entry.loadConvention) }),
@@ -51,7 +57,7 @@ export function openLoadPicker({ entry, index, value, recommended, onSave }) {
             oninput: (e) => { state.value = Number(e.target.value || 0); },
           }),
           el('button', { class: 'btn', 'aria-label': `Plus ${inc}`, onclick: () => { state.value += inc; rerender(); } }, '+')),
-        el('div', { class: 'chips', style: 'margin-top:12px' }, chips),
+        el('div', { class: 'chips', style: 'margin-top:12px' }, chips, lastChip),
         el('p', { class: 'tiny faint', style: 'margin:8px 0 0' },
           `Recommended ${fmtLoad(recommended, entry.loadConvention)} · steps of ${inc}`),
         applyRemainingRow(entry, index, state),

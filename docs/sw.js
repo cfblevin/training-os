@@ -1,5 +1,5 @@
 // Offline cache for Training OS. The whole app is one file, so this is short.
-const VERSION = 'training-os-1.4.0';
+const VERSION = 'training-os-1.5.0';
 const SHELL = ['./', './index.html'];
 
 self.addEventListener('install', (e) => {

@@ -23,7 +23,7 @@ Append `?nosw=1` to skip the offline cache while editing the source.
 npm test
 ```
 
-98 tests over the training logic and the logging workflow: the progression benchmark,
+102 tests over the training logic and the logging workflow: the progression benchmark,
 rotation ratios, mode structure, plan materialisation, the exercise library's contents and
 metadata, migrations and backup recovery, the full set-logging flow, plan edits and their
 scope, swaps that preserve performed work, recommendations, past-session correction, the

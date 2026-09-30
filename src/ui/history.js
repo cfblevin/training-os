@@ -184,7 +184,7 @@ export function openExerciseProgress(exerciseId) {
           }, lab))),
         lineChart(pts, picker, { label: `${name} ${metric.key}` }),
         el('div', { class: 'row', style: 'gap:8px;margin:6px 0 12px;flex-wrap:wrap' },
-          el('span', { class: 'badge badge-quiet', text: last.isFoundation ? 'Foundation movement' : 'Current variation' }),
+          el('span', { class: 'badge badge-quiet', text: last.isFoundation ? 'Anchor lift' : 'Rotating movement' }),
           el('span', {
             class: `badge ${trend === 'progressing' ? 'badge-good' : 'badge-quiet'}`,
             text: `Trend: ${trend}`,
@@ -204,7 +204,7 @@ export function openExerciseProgress(exerciseId) {
             },
               el('div', { class: 'list-row-main' },
                 el('div', { class: 'list-name truncate', text: r.name }),
-                el('div', { class: 'list-sub', text: r.isFoundation ? 'Foundation' : 'Variation' })),
+                el('div', { class: 'list-sub', text: r.isFoundation ? 'Anchor' : 'Rotating' })),
               el('span', { class: 'caret', text: '›' })))))
           : null);
     },
