@@ -34,11 +34,12 @@ test('the published source contains no measurement figures', async () => {
   const { fileURLToPath } = await import('node:url');
   const { dirname, join } = await import('node:path');
   const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+  // No inch figures at all, rather than a list of the athlete's own numbers.
+  const INCHES = /\d+(\.\d+)?\s*in\b/;
   for (const f of ['src/core/store.js', 'src/ui/profile.js']) {
     const text = readFileSync(join(root, f), 'utf8');
-    for (const figure of ['70.2', '16.5 in', '18 in femur', '19 in shoulders', '+1.8 in']) {
-      assert.ok(!text.includes(figure), `${f} still contains ${figure}`);
-    }
+    const hit = INCHES.exec(text);
+    assert.equal(hit, null, `${f} still quotes a measurement: ${hit && hit[0]}`);
   }
 });
 
@@ -67,7 +68,7 @@ test('a v3 snapshot migrates to the seven-day program without losing records', (
     schemaVersion: 3,
     settings: { mode: 'physique', theme: 'midnight' },
     profile: {
-      proportions: { height: 70, armSpan: 72, femur: 18 },
+      proportions: { height: 68, armSpan: 69, femur: 17 },   // synthetic fixture
       biomechanics: [{ id: 'b1', label: 'Long femurs relative to torso', note: 'forward lean' }],
       physiquePriorities: ['lats', 'quads'],
       fit: { 'hack-squat': 'preferred' },
@@ -86,8 +87,8 @@ test('a v3 snapshot migrates to the seven-day program without losing records', (
   assert.equal(state.sessions[0].exercises[0].sets[0].reps, 5, 'logged work survives');
   assert.equal(state.loads['bb-back-squat'].load, 225, 'baselines survive');
   assert.equal(state.settings.theme, 'midnight', 'preferences survive');
-  assert.equal(state.profile.proportions.wingspan, 72, 'arm span became wingspan');
-  assert.equal(state.profile.proportions.height, 70, 'an entered value is never overwritten');
+  assert.equal(state.profile.proportions.wingspan, 69, 'arm span became wingspan');
+  assert.equal(state.profile.proportions.height, 68, 'an entered value is never overwritten');
   assert.equal(state.profile.proportions.tibia, null, 'blank stays blank; measurements are entered, not shipped');
   assert.deepEqual(state.profile.tendencies, ['long-femurs'], 'free-text tendencies carried over');
   assert.deepEqual(state.profile.physiquePriorities, ['lats', 'quads'], 'chosen priorities are kept');
